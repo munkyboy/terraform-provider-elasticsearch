@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/olivere/elastic/uritemplates"
@@ -301,6 +302,12 @@ func resourceElasticsearchPutOpenDistroRole(d *schema.ResourceData, m interface{
 			Method: "PUT",
 			Path:   path,
 			Body:   string(roleJSON),
+			// see https://github.com/opendistro-for-
+			// elasticsearch/security/issues/1095, this should return a 409, but
+			// retry on the 500 as well. We can't parse the message to only retry on
+			// the conlict exception becaues the elastic client doesn't directly
+			// expose the error response body
+			RetryStatusCodes: []int{http.StatusConflict, http.StatusInternalServerError},
 		})
 		body = res.Body
 	default:
