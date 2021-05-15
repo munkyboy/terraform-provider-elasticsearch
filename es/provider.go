@@ -374,6 +374,7 @@ func getKibanaClient(conf *ProviderConf) (interface{}, error) {
 	// off of the same ES config
 	esClient, err := getClient(conf)
 	if err != nil {
+		log.Printf("[INFO] failed to get ES client: %+v", err)
 		return nil, err
 	}
 
@@ -410,7 +411,8 @@ func getKibanaClient(conf *ProviderConf) (interface{}, error) {
 		// rt := WithHeader(client.Transport)
 		// rt.Set("kbn-xsrf", "true")
 		// client.Transport = rt
-
+		// http://localhost:5601/api/alerts/_health
+		log.Printf("[INFO] kibana opts: %+v %+v", conf.kibanaUrl, conf.parsedUrl.Scheme)
 		return elastic7.NewClient(opts...)
 	case *elastic6.Client:
 		return nil, errors.New("ElasticSearch is older than 6.0.0!")
