@@ -38,8 +38,9 @@ func TestAccElasticsearchOpenDistroISMPolicyMapping(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck: func() {
 			testAccPreCheck(t)
+			// TODO and OpenDistro <= 1.13
 			if !allowed {
-				t.Skip("OpenDistroISMPolicies only supported on ES 7.")
+				t.Skip("OpenDistroISMPolicies only supported on ES 7")
 			}
 		},
 		Providers:    testAccOpendistroProviders,
@@ -137,7 +138,7 @@ resource "elasticsearch_opendistro_ism_policy" "test_policy" {
 	body      = <<EOF
  {
 	"policy": {
-	  "description": "ingesting logs",
+	  "description": "ingesting logs into ${elasticsearch_index.test.name}",
 	  "default_state": "ingest",
 	  "states": [
 			{
@@ -160,6 +161,12 @@ resource "elasticsearch_opendistro_ism_policy" "test_policy" {
 	}
  }
  EOF
+}
+
+resource "elasticsearch_index" "test" {
+  name = "terraform-test"
+  number_of_shards = 1
+  number_of_replicas = 1
 }
 
 resource "elasticsearch_opendistro_ism_policy_mapping" "test_mapping" {
